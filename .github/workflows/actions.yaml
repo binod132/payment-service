@@ -27,6 +27,11 @@ jobs:
 
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v1"
+      
+      - name: Install GKE gcloud Auth Plugin
+        run: |
+          gcloud components install gke-gcloud-auth-plugin
+          gcloud components update
 
       - name: "Use gcloud CLI"
         run: "gcloud info"
@@ -40,22 +45,18 @@ jobs:
         run: |  
           docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/microservice/payment-service:latest .
           docker push $REGION-docker.pkg.dev/$PROJECT_ID/microservice/payment-service:latest
-      # # Set up kubectl to interact with the GKE cluster
-      # - name: Set up kubectl
-      #   run: |
-      #     gcloud container clusters get-credentials $GKE_CLUSTER --zone $GKE_ZONE --project $PROJECT_ID
 
-      # # Apply Kubernetes manifests for User Service
-      # - name: Deploy User Service
-      #   run: |
-      #     kubectl apply -f k8s/user-service.yaml
+      # Set up kubectl to interact with the GKE cluster
+      - name: Set up kubectl
+        run: |
+          gcloud container clusters get-credentials $GKE_CLUSTER --zone $GKE_ZONE --project $PROJECT_ID
+          kubectl version --client
 
-      # # Apply Kubernetes manifests for Order Service
-      # - name: Deploy Order Service
-      #   run: |
-      #     kubectl apply -f k8s/order-service.yaml
-
-      # # Apply Kubernetes manifests for Payment Service
-      # - name: Deploy Payment Service
-      #   run: |
-      #     kubectl apply -f k8s/payment-service.yaml
+      # Apply Kubernetes manifests for Payment Service
+      - name: Deploy Payment Service
+        run: |
+          kubectl apply -f k8s/payment-service.yaml
+      # Check Payment Service PODs
+      - name: Payment Service pods
+        run: |
+          kubectl get pod | grep payment
