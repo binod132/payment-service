@@ -17,6 +17,7 @@ spec:
       containers:
       - name: payment-service
         image: us-west1-docker.pkg.dev/brave-smile-424210-m0/microservice/payment-service:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         resources:
