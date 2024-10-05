@@ -106,6 +106,70 @@ scp <user>@<control-plane-ip>:/etc/rancher/k3s/k3s.yaml ~/k3s-config.yaml
 ```
 ```yaml
 export KUBECONFIG=~/k3s-config.yaml
+```
+#  GitOps
+## Install Flux CLI: (on control plane)
+curl -s https://fluxcd.io/install.sh | sudo bash
+## Bootstrap Flux with a GitHub Repository:
+export GITHUB_TOKEN=<your-github-token>
+export GITHUB_USER=binod132
+
+flux bootstrap github \
+  --owner=$GITHUB_USER \
+  --repository=payment-service \
+  --branch=main \
+  --path=k8s \
+  --personal
+
+
+##Configure GitOps for payment-service Application
+### Create a file called payment-git-repo.yaml and define the GitRepository resource:
+```yaml
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: GitRepository
+metadata:
+  name: payment-service-repo
+  namespace: flux-system
+spec:
+  interval: 1m
+  url: https://github.com/binod132/payment-service
+  branch: main
+  ref:
+    branch: main
+  timeout: 20s
+  ignore: |
+    # Ignore any files outside the k8s directory
+    /*
+    !/k8s
+```
+```yaml
+kubectl apply -f payment-git-repo.yaml
+```
+
+### Create a Flux Kustomization Resource
+```yaml
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: payment-service-kustomization
+  namespace: flux-system
+spec:
+  interval: 1m
+  path: "./k8s"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: payment-service-repo
+  targetNamespace: default
+```
+```yaml
+kubectl apply -f payment-kustomization.yaml
+```
+###Verify the Flux GitOps Setup
+flux get sources git  
+flux get kustomizations  
+change manifest file and see its working..
+
 
 
 
