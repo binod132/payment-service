@@ -6,6 +6,11 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.23.8+k3s1 sh -
 ```
 sudo systemctl status k3s
 kubectl get nodes
+
+##kubeconfig 
+/etc/rancher/k3s/k3s.yaml
+
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml (change service ip if needed but copy first)
 # Step 2: Install K3s on Worker Node
 ```yaml 
 sudo cat /var/lib/rancher/k3s/server/node-token
