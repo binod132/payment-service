@@ -308,10 +308,48 @@ parameters:
 kubectl patch storageclass <your-storageclass> -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 ```
 
+## Registry
+```yaml
+version: '3'
 
+services:
+  # Nexus Repository Manager
+  nexus:
+    image: sonatype/nexus3:latest
+    container_name: nexus
+    ports:
+      - "8081:8081"
+      - "8082:8082"  # Expose Nexus UI port
+    volumes:
+      - nexus-data:/nexus-data  # Persist Nexus data
+    restart: unless-stopped
 
-
-
+volumes:
+  nexus-data:
+```
+### docker insecure
+```yaml
+sudo nano /etc/docker/daemon.json
+```
+```yaml
+{
+  "insecure-registries": ["localhost:5000"]
+}
+```
+###Install Jenkins
+```yaml
+sudo apt update
+sudo apt install openjdk-11-jdk -y
+java -version
+wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
+echo deb http://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list
+sudo apt update
+sudo apt install jenkins -y
+sudo systemctl start jenkins
+sudo systemctl enable jenkins
+sudo ufw allow 8080
+sudo ufw reload
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 
 
 
