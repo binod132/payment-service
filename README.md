@@ -165,7 +165,7 @@ spec:
 ```yaml
 kubectl apply -f payment-kustomization.yaml
 ```
-###Verify the Flux GitOps Setup
+###Verify the Flux GitOps Setup  
 flux get sources git  
 flux get kustomizations  
 change manifest file and see its working..
